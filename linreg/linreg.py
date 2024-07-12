@@ -96,11 +96,11 @@ if __name__ == "__main__":
 
     # 训练模型
     for epoch in range(num_epochs):
-        # 创建特征和标签的小批量数据生成器
-        feature_generator, label_generator = data_iter(batch_size, features, labels), data_iter(batch_size, features, labels)
+        # 获取小批量数据的生成器
+        data_generator = data_iter(batch_size, features, labels)
 
         # 迭代访问小批量数据，每次迭代返回一批特征和对应的标签
-        for X, y in zip(feature_generator, label_generator):
+        for X, y in data_generator:
             
             # 计算小批量的损失
             l = squared_loss(linreg(X, w, b), y)
