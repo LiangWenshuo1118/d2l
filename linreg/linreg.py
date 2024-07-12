@@ -113,6 +113,9 @@ if __name__ == "__main__":
 
             sgd([w, b], lr, batch_size)  # 使用参数的梯度更新参数
 
+print(f'Trained weights: \n{w.view(-1)}\n')
+print(f'Trained bias: \n{b.item()}\n')
+
         with torch.no_grad():
             # 计算整个数据集上的损失
             train_l = squared_loss(linreg(features, w, b), labels)
