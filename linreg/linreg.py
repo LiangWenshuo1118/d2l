@@ -1,6 +1,7 @@
 import torch
 import random
 
+# 生成数据集
 def synthetic_data(w, b, num_examples):
     """
     生成线性数据集。模型为 y = Xw + b + 噪声。
@@ -21,6 +22,7 @@ def synthetic_data(w, b, num_examples):
     # 将 y 的形状从 [num_examples,] 调整为 [num_examples, 1]，这样做是为了后续处理的方便
     return X, y.reshape((-1, 1))
 
+# 读取数据集
 def data_iter(batch_size, features, labels):
     """
     随机读取小批量数据集。
@@ -38,6 +40,7 @@ def data_iter(batch_size, features, labels):
         batch_indices = torch.tensor(indices[i: min(i + batch_size, num_examples)])
         yield features[batch_indices], labels[batch_indices]
 
+# 定义模型
 def linreg(X, w, b):
     """
     线性回归模型。
@@ -48,6 +51,7 @@ def linreg(X, w, b):
     """
     return torch.matmul(X, w) + b
 
+# 定义损失函数
 def squared_loss(y_hat, y):
     """
     均方损失。
@@ -57,6 +61,7 @@ def squared_loss(y_hat, y):
     """
     return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 
+# 定义优化算法
 def sgd(params, lr, batch_size):
     """
     小批量随机梯度下降。
@@ -70,7 +75,7 @@ def sgd(params, lr, batch_size):
             param.grad.zero_()  # 清空累积梯度，为下一次梯度计算做准备
 
 if __name__ == "__main__":
-    # 真实的权重和偏置项，用于生成合成数据
+    # 真实的权重和偏置项，用于生成数据
     true_w = torch.tensor([2, -3.4])
     true_b = 4.2
 
