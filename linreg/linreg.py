@@ -118,5 +118,5 @@ if __name__ == "__main__":
             train_l = squared_loss(linreg(features, w, b), labels)
             print(f'epoch {epoch + 1}, loss {float(train_l.mean()):f}')
 
-print(f'Trained weights: \n{w.view(-1)}\n')
-print(f'Trained bias: \n{b.item()}\n')
+    print(f'Trained weights: \n{w.view(-1)}\n')
+    print(f'Trained bias: \n{b.item()}\n')
