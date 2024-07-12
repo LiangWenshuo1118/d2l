@@ -25,20 +25,22 @@ def synthetic_data(w, b, num_examples):
 # 读取数据集
 def data_iter(batch_size, features, labels):
     """
-    随机读取小批量数据集。
-    :param batch_size: 每个小批量的样本数量
-    :param features: 特征矩阵
-    :param labels: 标签向量
-    :yield: 每个小批量的特征和标签
+    生成小批量数据。
+    :param batch_size: 每批的样本数，决定了每次迭代返回的数据量
+    :param features: 完整的特征数据集，通常是一个二维张量
+    :param labels: 完整的标签数据集，与特征集对应
+    :yield: 每次迭代返回一批随机的特征和标签
+    
+    这个函数使用 Python 的生成器机制，每次调用时生成一个数据批次，直到整个数据集被完全遍历。
     """
-    num_examples = len(features)
-    indices = list(range(num_examples))
-    # 将样本随机打乱
-    random.shuffle(indices)
-    for i in range(0, num_examples, batch_size):
-        # 生成小批量索引
-        batch_indices = torch.tensor(indices[i: min(i + batch_size, num_examples)])
-        yield features[batch_indices], labels[batch_indices]
+    num_examples = len(features)  # 计算总样本数
+    indices = list(range(num_examples))  # 创建一个索引列表，从0到num_examples-1
+    random.shuffle(indices)  # 随机打乱索引，以确保数据的随机性
+
+    # 迭代返回每个批次的数据
+    for i in range(0, num_examples, batch_size):  # 从0开始，以batch_size为步长遍历索引
+        batch_indices = torch.tensor(indices[i: min(i + batch_size, num_examples)])  # 获取当前批次的索引
+        yield features[batch_indices], labels[batch_indices]  # 使用索引从数据集中取出对应的特征和标签，并返回这一批次的数据
 
 # 定义模型
 def linreg(X, w, b):
