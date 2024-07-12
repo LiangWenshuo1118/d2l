@@ -94,6 +94,7 @@ if __name__ == "__main__":
 
     # 训练模型
     for epoch in range(num_epochs):
+        # 迭代访问小批量数据，每次迭代返回一批特征和对应的标签
         for X, y in data_iter(batch_size, features, labels):
             # 计算小批量的损失
             l = squared_loss(linreg(X, w, b), y)
