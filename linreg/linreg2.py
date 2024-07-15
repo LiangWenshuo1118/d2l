@@ -38,8 +38,6 @@ if __name__ == "__main__":
     # 生成数据
     features, labels = synthetic_data(true_w, true_b, 1000)
 
-    from torch import nn
-
     # 定义模型
     # nn.Sequential: 顺序容器。模块将按照它们在构造函数中传递的顺序添加到其中，每个模块的输出将作为下一个模块的输入。
     # nn.Linear: 应用一个线性变换到输入数据 y = xA^T + b，参数解释:
