@@ -12,14 +12,6 @@ def synthetic_data(w, b, num_examples):
 def load_array(data_arrays, batch_size, is_train=True):
     """
     构造一个PyTorch数据迭代器。此函数接受数据和标签，将它们封装成一个可迭代的 DataLoader，从而允许在训练模型时进行批量处理和可选的数据混洗。
-
-    :param data_arrays: 一个包含特征和标签的元组。例如，(features, labels)。
-                        - `features` 是一个张量，包含了输入特征。
-                        - `labels` 是一个张量，包含了与特征对应的标签。
-    :param batch_size: 指定每个数据批次的大小。这是每次迭代训练时网络将处理的样本数量。
-    :param is_train: 一个布尔值，指示是否在迭代时对数据进行随机洗牌。在训练模型时通常设置为 True 以增加随机性和提高模型泛化能力；在评估模型时通常设置为 False。
-
-    :return: 返回一个 DataLoader 对象，它是一个迭代器，能够按照指定的批次大小(batch_size)和是否混洗(shuffle)来批量提供数据。
     """
     # 将传入的特征和标签数组封装成 TensorDataset 对象，它是一个包含张量的数据集，可以用于 DataLoader。
     # *data_arrays 使用星号表达式来解包参数列表，使得函数可以接受任意数量的数据张量作为输入。
