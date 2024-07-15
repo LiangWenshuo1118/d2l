@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch.utils import data
+from torch.utils.data import DataLoader, TensorDataset
 
 def synthetic_data(w, b, num_examples):
     """生成 y = Xw + b + 噪声 的数据集"""
@@ -8,19 +8,6 @@ def synthetic_data(w, b, num_examples):
     y = torch.matmul(X, w) + b
     y += torch.normal(0, 0.01, y.shape)
     return X, y.reshape((-1, 1))
-
-def load_array(data_arrays, batch_size, is_train=True):
-    """
-    构造一个PyTorch数据迭代器。此函数接受数据和标签，将它们封装成一个可迭代的 DataLoader，从而允许在训练模型时进行批量处理和可选的数据混洗。
-    """
-    # 将传入的特征和标签数组封装成 TensorDataset 对象，它是一个包含张量的数据集，可以用于 DataLoader。
-    # *data_arrays 使用星号表达式来解包参数列表，使得函数可以接受任意数量的数据张量作为输入。
-    dataset = data.TensorDataset(*data_arrays)
-
-    # 创建 DataLoader 对象，它是 PyTorch 中的一种数据迭代器，用于按照指定的批量大小和是否混洗来加载数据集。
-    # DataLoader 的 shuffle 参数控制是否在每个 epoch 开始时对数据进行随机洗牌。
-    return data.DataLoader(dataset, batch_size, shuffle=is_train)
-
 
 if __name__ == "__main__":
     # 真实的权重和偏置项
@@ -30,12 +17,12 @@ if __name__ == "__main__":
     # 生成数据
     features, labels = synthetic_data(true_w, true_b, 1000)
 
+    # 封装数据
+    batch_size = 10
+    dataset = TensorDataset(features, labels)
+    data_iter = DataLoader(dataset, batch_size, shuffle=True)
+
     # 定义模型
-    # nn.Sequential: 顺序容器。模块将按照它们在构造函数中传递的顺序添加到其中，每个模块的输出将作为下一个模块的输入。
-    # nn.Linear: 应用一个线性变换到输入数据 y = xA^T + b，参数解释:
-    # 2 - 输入特征的数量。在这个例子中，每个输入样本是一个包含2个特征的向量。
-    # 1 - 输出特征的数量。这意味着对于每个输入向量，模型将输出一个标量值。
-    # 这个结构非常适合执行简单的线性回归任务，其中我们试图学习一个从输入特征到一个输出值的映射。
     net = nn.Sequential(nn.Linear(2, 1))
 
     # 初始化模型参数
@@ -45,12 +32,6 @@ if __name__ == "__main__":
     # 定义损失函数
     loss = nn.MSELoss()
 
-    # 定义批量大小
-    batch_size = 10
-
-    # 加载数据
-    data_iter = load_array((features, labels), batch_size)
-    
     # 定义优化器
     trainer = torch.optim.SGD(net.parameters(), lr=0.03)
 
