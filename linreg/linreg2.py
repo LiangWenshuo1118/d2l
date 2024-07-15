@@ -19,7 +19,9 @@ if __name__ == "__main__":
 
     # 封装数据
     batch_size = 10
+    # 将特征和标签封装成一个数据集
     dataset = TensorDataset(features, labels)
+    # DataLoader 接受一个数据集并允许你定义批量大小和是否在每个 epoch 开始时混洗数据
     data_iter = DataLoader(dataset, batch_size, shuffle=True)
 
     # 定义模型
