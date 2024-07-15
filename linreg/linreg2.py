@@ -39,10 +39,10 @@ if __name__ == "__main__":
     num_epochs = 3
     for epoch in range(num_epochs):
         for X, y in data_iter:
-            l = loss(net(X), y)  # 计算损失
-            trainer.zero_grad()  # 清空梯度
-            l.backward()         # 计算梯度
-            trainer.step()       # 更新参数
+            l = loss(net(X), y)  # 先计算损失：这样才能知道在当前模型参数下，模型的表现如何。
+            trainer.zero_grad()  # 再清空梯度：以避免错误的梯度累积。
+            l.backward()         # 执行反向传播：计算关于当前损失的梯度。
+            trainer.step()       # 最后更新参数：根据计算得到的梯度优化模型参数。
         with torch.no_grad():
             l = loss(net(features), labels)  # 计算全数据集的损失
             print(f'epoch {epoch + 1}, loss {l:f}')
