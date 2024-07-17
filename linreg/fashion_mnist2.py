@@ -4,23 +4,22 @@ from torch import nn
 from torch.utils import data
 from torchvision import transforms
 
-
 def init_weights(m):
     if type(m) == nn.Linear:
         nn.init.normal_(m.weight, std=0.01)
-
 
 def evaluate_accuracy(data_iter, net):
     correct = 0
     total = 0
     for X, y in data_iter:
         with torch.no_grad():
-            y_hat = net(X)
-            y_pred = torch.argmax(y_hat, axis=1)
-            correct += (y_pred == y).sum().item()
-            total += y.size(0)
-    return correct / total
-
+            # 注意：这里我们不使用softmax转换输出结果为概率是因为softmax是单调的，不改变元素的顺序。
+            # 因此，argmax操作直接应用于logits上与应用于通过softmax转换后的概率上得到的结果是相同的。
+            y_hat = net(X) 
+            y_pred = torch.argmax(y_hat, axis=1)  
+            correct += (y_pred == y).sum().item()  
+            total += y.size(0)  
+    return correct / total  # 计算整个数据集的准确率
 
 if __name__ == "__main__":
     # 下载数据
