@@ -3,23 +3,6 @@ import torchvision
 from torch.utils import data
 from torchvision import transforms
 
-def softmax(X):
-    X_exp = torch.exp(X)
-    partition = X_exp.sum(1, keepdim=True)
-    return X_exp / partition  # 这里应用了广播机制
-
-def net(X,W,b):
-    return softmax(torch.matmul(X.reshape((-1, W.shape[0])), W) + b)
-
-def cross_entropy(y_hat, y):
-    return - torch.log(y_hat[range(len(y_hat)), y])
-
-def sgd(params, lr, batch_size):
-    with torch.no_grad():  # 停止自动梯度计算，节省计算资源和内存
-        for param in params:
-            param -= lr * param.grad / batch_size  # 按缩放后的梯度更新参数
-            param.grad.zero_()
-
 def evaluate_accuracy(data_iter, net):
     correct = 0
     total = 0
@@ -39,20 +22,23 @@ if __name__ == "__main__":
     mnist_test = torchvision.datasets.FashionMNIST(
         root="./data", train=False, transform=trans, download=True)
 
-    # 初始化参数
+    batch_size = 256  # 小批量大小
+    train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True)
+
+    # 定义模型
     num_inputs = 784
     num_outputs = 10
+    net = nn.Sequential(nn.Linear(2, 1))
     W = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
     b = torch.zeros(num_outputs, requires_grad=True)
 
     # 超参数设置
-    lr = 0.1  # 学习率
+
     num_epochs = 10   # 训练周期数
-    batch_size = 256  # 小批量大小
 
     # 训练模型
     for epoch in range(num_epochs):
-        train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True)
+
         total_loss = 0
         total_number = 0
 
