@@ -3,104 +3,73 @@ import torchvision
 from torch.utils import data
 from torchvision import transforms
 
-def get_fashion_mnist_labels(labels):  #@save
-    """返回Fashion-MNIST数据集的文本标签"""
-    text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
-                   'sandal', 'shirt', 'sneaker', 'bag', 'ankle boot']
-    return [text_labels[int(i)] for i in labels]
-
-def load_data_fashion_mnist(batch_size, resize=None):  #@save
-    """下载Fashion-MNIST数据集，然后将其加载到内存中"""
-    trans = [transforms.ToTensor()]
-    if resize:
-        trans.insert(0, transforms.Resize(resize))
-    trans = transforms.Compose(trans)
-    mnist_train = torchvision.datasets.FashionMNIST(
-        root="../data", train=True, transform=trans, download=True)
-    mnist_test = torchvision.datasets.FashionMNIST(
-        root="../data", train=False, transform=trans, download=True)
-    return (data.DataLoader(mnist_train, batch_size, shuffle=True,
-                            num_workers=4),
-            data.DataLoader(mnist_test, batch_size, shuffle=False,
-                            num_workers=4))
-
 def softmax(X):
     X_exp = torch.exp(X)
     partition = X_exp.sum(1, keepdim=True)
     return X_exp / partition  # 这里应用了广播机制
 
-def net(X):
+def net(X,W,b):
     return softmax(torch.matmul(X.reshape((-1, W.shape[0])), W) + b)
 
 def cross_entropy(y_hat, y):
     return - torch.log(y_hat[range(len(y_hat)), y])
 
+def sgd(params, lr, batch_size):
+    with torch.no_grad():  # 停止自动梯度计算，节省计算资源和内存
+        for param in params:
+            param -= lr * param.grad / batch_size  # 按缩放后的梯度更新参数
+            param.grad.zero_()
 
-def accuracy(y_hat, y):  #@save
-    """计算预测正确的数量"""
-    if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
-        y_hat = y_hat.argmax(axis=1)
-    cmp = y_hat.type(y.dtype) == y
-    return float(cmp.type(y.dtype).sum())
+def evaluate_accuracy(data_iter, net):
+    correct = 0
+    total = 0
+    for X, y in data_iter:
+        with torch.no_grad():
+            y_hat = net(X, W, b)
+            y_pred = torch.argmax(y_hat, axis=1)
+            correct += (y_pred == y).sum().item()
+            total += y.size(0)
+    return correct / total
 
-def evaluate_accuracy(net, data_iter):  #@save
-    """计算在指定数据集上模型的精度"""
-    if isinstance(net, torch.nn.Module):
-        net.eval()  # 将模型设置为评估模式
-    metric = Accumulator(2)  # 正确预测数、预测总数
-    with torch.no_grad():
-        for X, y in data_iter:
-            metric.add(accuracy(net(X), y), y.numel())
-    return metric[0] / metric[1]
+if __name__ == "__main__":
+    # 下载数据
+    trans = transforms.ToTensor()
+    mnist_train = torchvision.datasets.FashionMNIST(
+        root="./data", train=True, transform=trans, download=True)
+    mnist_test = torchvision.datasets.FashionMNIST(
+        root="./data", train=False, transform=trans, download=True)
 
-def train_epoch_ch3(net, train_iter, loss, updater):  #@save
-    """训练模型一个迭代周期（定义见第3章）"""
-    # 将模型设置为训练模式
-    if isinstance(net, torch.nn.Module):
-        net.train()
-    # 训练损失总和、训练准确度总和、样本数
-    metric = Accumulator(3)
-    for X, y in train_iter:
-        # 计算梯度并更新参数
-        y_hat = net(X)
-        l = loss(y_hat, y)
-        if isinstance(updater, torch.optim.Optimizer):
-            # 使用PyTorch内置的优化器和损失函数
-            updater.zero_grad()
-            l.mean().backward()
-            updater.step()
-        else:
-            # 使用定制的优化器和损失函数
+    # 初始化参数
+    num_inputs = 784
+    num_outputs = 10
+    W = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
+    b = torch.zeros(num_outputs, requires_grad=True)
+
+    # 超参数设置
+    lr = 0.1  # 学习率
+    num_epochs = 100# 训练周期数
+    batch_size = 256  # 小批量大小
+
+    # 训练模型
+    for epoch in range(num_epochs):
+        train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True)
+        total_loss = 0
+        total_batches = 0
+
+        for X, y in train_iter:
+            # 计算小批量的损失
+            l = cross_entropy(net(X, W, b), y)
             l.sum().backward()
-            updater(X.shape[0])
-        metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
-    # 返回训练损失和训练精度
-    return metric[0] / metric[2], metric[1] / metric[2]
+            sgd([W, b], lr, batch_size)  # 使用参数的梯度更新参数
+            total_loss += l.sum()
+            total_batches += 1
 
-def predict_ch3(net, test_iter, n=6):  #@save
-    """预测标签（定义见第3章）"""
-    for X, y in test_iter:
-        break
-    trues = d2l.get_fashion_mnist_labels(y)
-    preds = d2l.get_fashion_mnist_labels(net(X).argmax(axis=1))
-    titles = [true +'\n' + pred for true, pred in zip(trues, preds)]
-    d2l.show_images(
-        X[0:n].reshape((n, 28, 28)), 1, n, titles=titles[0:n])
+        # 计算整个数据集上的平均损失
+        avg_loss = total_loss / total_batches
+        print(f'epoch {epoch + 1}, average loss {float(avg_loss):f}')
 
-trans = transforms.ToTensor()
-mnist_train = torchvision.datasets.FashionMNIST(
-    root="../data", train=True, transform=trans, download=True)
-mnist_test = torchvision.datasets.FashionMNIST(
-    root="../data", train=False, transform=trans, download=True)
+    # 创建测试数据加载器
+    test_iter = data.DataLoader(mnist_test, batch_size=256, shuffle=False)
+    accuracy = evaluate_accuracy(test_iter, net)
+    print(f"Accuracy on the test set: {accuracy * 100:.2f}%")
 
-batch_size = 256
-train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True,
-                             num_workers=4)
-
-train_iter, test_iter = load_data_fashion_mnist(32, resize=64)
-
-num_inputs = 784
-num_outputs = 10
-
-W = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
-b = torch.zeros(num_outputs, requires_grad=True)
