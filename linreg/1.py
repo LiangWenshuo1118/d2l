@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     # 超参数设置
     lr = 0.1  # 学习率
-    num_epochs = 100# 训练周期数
+    num_epochs = 100  # 训练周期数
     batch_size = 256  # 小批量大小
 
     # 训练模型
