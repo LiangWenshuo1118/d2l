@@ -33,7 +33,9 @@ if __name__ == "__main__":
     train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True)
 
     # 定义模型
-    net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
+    # nn.Flatten()将图像从二维展平为一维
+    # 线性层，784个输入特征，10个输出类别
+    net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))  
     net.apply(init_weights)
 
     # 超参数设置
