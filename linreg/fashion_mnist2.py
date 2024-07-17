@@ -1,18 +1,26 @@
 import torch
 import torchvision
+from torch import nn
 from torch.utils import data
 from torchvision import transforms
+
+
+def init_weights(m):
+    if type(m) == nn.Linear:
+        nn.init.normal_(m.weight, std=0.01)
+
 
 def evaluate_accuracy(data_iter, net):
     correct = 0
     total = 0
     for X, y in data_iter:
         with torch.no_grad():
-            y_hat = net(X, W, b)
+            y_hat = net(X)
             y_pred = torch.argmax(y_hat, axis=1)
             correct += (y_pred == y).sum().item()
             total += y.size(0)
     return correct / total
+
 
 if __name__ == "__main__":
     # 下载数据
@@ -26,27 +34,28 @@ if __name__ == "__main__":
     train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True)
 
     # 定义模型
-    num_inputs = 784
-    num_outputs = 10
-    net = nn.Sequential(nn.Linear(2, 1))
-    W = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
-    b = torch.zeros(num_outputs, requires_grad=True)
+    net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
+    net.apply(init_weights)
 
     # 超参数设置
+    num_epochs = 10  # 训练周期数
 
-    num_epochs = 10   # 训练周期数
+    # 定义损失函数
+    loss = nn.CrossEntropyLoss(reduction='none')
+
+    # 定义优化器
+    trainer = torch.optim.SGD(net.parameters(), lr=0.1)
 
     # 训练模型
     for epoch in range(num_epochs):
-
         total_loss = 0
         total_number = 0
-
         for X, y in train_iter:
-            # 计算小批量的损失
-            l = cross_entropy(net(X, W, b), y)
-            l.sum().backward()
-            sgd([W, b], lr, batch_size)  # 使用参数的梯度更新参数
+            l = loss(net(X), y)
+            trainer.zero_grad()
+            l.mean().backward()
+            trainer.step()
+
             total_loss += l.sum()
             total_number += X.shape[0]
 
