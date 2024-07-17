@@ -47,14 +47,14 @@ if __name__ == "__main__":
 
     # 超参数设置
     lr = 0.1  # 学习率
-    num_epochs = 100  # 训练周期数
+    num_epochs = 10   # 训练周期数
     batch_size = 256  # 小批量大小
 
     # 训练模型
     for epoch in range(num_epochs):
         train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True)
         total_loss = 0
-        total_batches = 0
+        total_number = 0
 
         for X, y in train_iter:
             # 计算小批量的损失
@@ -62,10 +62,10 @@ if __name__ == "__main__":
             l.sum().backward()
             sgd([W, b], lr, batch_size)  # 使用参数的梯度更新参数
             total_loss += l.sum()
-            total_batches += 1
+            total_number += X.shape[0]
 
         # 计算整个数据集上的平均损失
-        avg_loss = total_loss / total_batches
+        avg_loss = total_loss / total_number
         print(f'epoch {epoch + 1}, average loss {float(avg_loss):f}')
 
     # 创建测试数据加载器
