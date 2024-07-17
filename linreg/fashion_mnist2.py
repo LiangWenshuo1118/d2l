@@ -13,8 +13,8 @@ def evaluate_accuracy(data_iter, net):
     total = 0
     for X, y in data_iter:
         with torch.no_grad():
-            # 注意：这里我们不使用softmax转换输出结果为概率是因为softmax是单调的，不改变元素的顺序。
-            # 因此，argmax操作直接应用于logits上与应用于通过softmax转换后的概率上得到的结果是相同的。
+            # 注意：这里我们不使用softmax转换输出结果为概率是因为softmax不改变元素的顺序。
+            # 因此，argmax操作直接应用于输出结果上与应用于通过softmax转换后的概率上得到的结果是相同的。
             y_hat = net(X) 
             y_pred = torch.argmax(y_hat, axis=1)  
             correct += (y_pred == y).sum().item()  
