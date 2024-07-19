@@ -11,7 +11,7 @@ class CNN(nn.Module):
             # 第一个卷积层，输入图像大小为（1, 28, 28）
             nn.Conv2d(
                 in_channels=1,     # 输入通道数为1，因为是灰度图像
-                out_channels=8,   # 输出通道数为16，表示使用16个卷积核
+                out_channels=16,   # 输出通道数为16，表示使用16个卷积核
                 kernel_size=5,     # 卷积核大小为5x5
                 stride=1,          # 卷积核移动步长为1
                 padding=2          # 填充为2，保持图像大小不变
@@ -22,8 +22,8 @@ class CNN(nn.Module):
         self.conv2 = nn.Sequential(
             # 第二个卷积层，输入图像大小为（16, 14, 14）
             nn.Conv2d(
-                in_channels=8,    # 输入通道数为16
-                out_channels=16,   # 输出通道数为32，表示使用32个卷积核
+                in_channels=16,    # 输入通道数为16
+                out_channels=32,   # 输出通道数为32，表示使用32个卷积核
                 kernel_size=5,     # 卷积核大小为5x5
                 stride=1,          # 卷积核移动步长为1
                 padding=2          # 填充为2，保持图像大小不变
@@ -32,7 +32,7 @@ class CNN(nn.Module):
             nn.MaxPool2d(2)       # 使用2x2最大池化，输出图像大小减半: (32, 7, 7)
         )
         # 定义全连接层，输入特征数为32*7*7，输出特征数为10
-        self.out = nn.Linear(16 * 7 * 7, 10)  # 进行10分类
+        self.out = nn.Linear(32 * 7 * 7, 10)  # 进行10分类
 
     def forward(self, x):
         x = self.conv1(x)
