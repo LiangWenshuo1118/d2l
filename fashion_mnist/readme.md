@@ -1,5 +1,5 @@
 
-## cnn.py
+## fashion_nist_cnn_simple.py
 epoch 1, average loss 0.861013
 epoch 2, average loss 0.493013
 epoch 3, average loss 0.429167
