@@ -59,7 +59,7 @@ def evaluate_model(data_iter, net, device, loss_fn):
 if __name__ == "__main__":
     # 选择设备，优先使用GPU（CUDA或MPS），否则使用CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
-    print(f"Using {device} device") 
+    print(f"Using {device} device")
 
     # 数据预处理，将图像转换为张量
     trans = transforms.ToTensor()
@@ -68,20 +68,23 @@ if __name__ == "__main__":
     mnist_test = torchvision.datasets.FashionMNIST(root="./data", train=False, transform=trans, download=True)
 
     batch_size = 256
-    train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True)
-    test_iter = data.DataLoader(mnist_test, batch_size, shuffle=False)
+    train_iter = torch.utils.data.DataLoader(mnist_train, batch_size, shuffle=True)
+    test_iter = torch.utils.data.DataLoader(mnist_test, batch_size, shuffle=False)
 
     # 初始化模型并移动到设备（CPU或GPU）
     net = VGG_like().to(device)
-    num_epochs = 50  
-    loss_fn = nn.CrossEntropyLoss(reduction='none')  
-    trainer = torch.optim.SGD(net.parameters(), lr=0.1)  
+    num_epochs = 50
+    loss_fn = nn.CrossEntropyLoss(reduction='none')
+    trainer = torch.optim.SGD(net.parameters(), lr=0.1)
 
-    for epoch in range(num_epochs):  
+    # 初始化记录结果的列表
+    results = []
+
+    for epoch in range(num_epochs):
         net.train()  # 确保网络在训练模式
-        total_loss = 0  
-        total_number = 0  
-        for X, y in train_iter:  
+        total_loss = 0
+        total_number = 0
+        for X, y in train_iter:
             X, y = X.to(device), y.to(device)  # 将数据移动到设备
             l = loss_fn(net(X), y)  # 计算损失
             trainer.zero_grad()  # 梯度清零
@@ -91,10 +94,18 @@ if __name__ == "__main__":
             total_loss += l.sum()  # 累加损失值
             total_number += y.size(0)  # 累加样本总数
 
-        train_loss = total_loss / total_number  
-        
+        train_loss = total_loss / total_number
+
         net.eval()  # 设置网络为评估模式
         test_loss, test_accuracy = evaluate_model(test_iter, net, device, loss_fn)  # 计算测试集上的损失和准确率
 
+        results.append([epoch + 1, train_loss.item(), test_loss.item(), test_accuracy])
+
         # 打印当前epoch的训练损失、测试损失和测试准确率
         print(f'Epoch {epoch + 1}: Train Loss {train_loss:.4f}, Test Loss {test_loss:.4f}, Test Accuracy {test_accuracy * 100:.2f}%')
+
+    # 训练结束后，把数据写入txt文件
+    with open('log/VGG_like_droupout.txt', 'w') as f:
+        f.write("{:<10}{:<15}{:<15}{:<15}\n".format("Epoch", "Train Loss", "Test Loss", "Test Accuracy"))
+        for data in results:
+            f.write("{:<10}{:<15.4f}{:<15.4f}{:<15.2f}\n".format(*data))
