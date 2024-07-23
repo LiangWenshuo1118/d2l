@@ -57,6 +57,9 @@ Accuracy on the test set: 89.98%
 
 ## fashion_nist VGG_like.py
 
+- using mps
+- using dropout
+
 ```
 Using mps device
 Epoch 1: Train Loss 1.5869, Test Loss 0.8170, Test Accuracy 70.20%
