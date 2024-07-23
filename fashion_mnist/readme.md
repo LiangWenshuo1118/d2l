@@ -228,5 +228,8 @@ Epoch 49: Train Loss 0.2255, Test Loss 0.2177, Test Accuracy 91.98%
 Epoch 50: Train Loss 0.2226, Test Loss 0.2208, Test Accuracy 91.69%
 ```
 
+
+## Results
+
 ![results](./results/results.png)
 
