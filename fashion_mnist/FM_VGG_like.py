@@ -59,7 +59,7 @@ def evaluate_model(data_iter, net, device, loss_fn):
 if __name__ == "__main__":
     # 选择设备，优先使用GPU（CUDA或MPS），否则使用CPU
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
-    print(f"Using {device} device")  # 打印使用的设备
+    print(f"Using {device} device") 
 
     # 数据预处理，将图像转换为张量
     trans = transforms.ToTensor()
@@ -67,22 +67,21 @@ if __name__ == "__main__":
     mnist_train = torchvision.datasets.FashionMNIST(root="./data", train=True, transform=trans, download=True)
     mnist_test = torchvision.datasets.FashionMNIST(root="./data", train=False, transform=trans, download=True)
 
-    batch_size = 256  # 定义批量大小
-    # 创建数据加载器，用于批量加载训练数据和测试数据
+    batch_size = 256
     train_iter = data.DataLoader(mnist_train, batch_size, shuffle=True)
     test_iter = data.DataLoader(mnist_test, batch_size, shuffle=False)
 
     # 初始化模型并移动到设备（CPU或GPU）
     net = VGG_like().to(device)
-    num_epochs = 10  # 训练的周期数
-    loss_fn = nn.CrossEntropyLoss(reduction='none')  # 损失函数，使用交叉熵损失
-    trainer = torch.optim.SGD(net.parameters(), lr=0.1)  # 优化器，使用随机梯度下降法，学习率为0.1
+    num_epochs = 50  
+    loss_fn = nn.CrossEntropyLoss(reduction='none')  
+    trainer = torch.optim.SGD(net.parameters(), lr=0.1)  
 
-    for epoch in range(num_epochs):  # 循环训练，每个epoch进行一次完整的训练和测试
+    for epoch in range(num_epochs):  
         net.train()  # 确保网络在训练模式
-        total_loss = 0  # 初始化总损失
-        total_number = 0  # 初始化样本总数
-        for X, y in train_iter:  # 迭代每个批次的训练数据
+        total_loss = 0  
+        total_number = 0  
+        for X, y in train_iter:  
             X, y = X.to(device), y.to(device)  # 将数据移动到设备
             l = loss_fn(net(X), y)  # 计算损失
             trainer.zero_grad()  # 梯度清零
@@ -92,7 +91,8 @@ if __name__ == "__main__":
             total_loss += l.sum()  # 累加损失值
             total_number += y.size(0)  # 累加样本总数
 
-        train_loss = total_loss / total_number  # 计算训练集上的平均损失
+        train_loss = total_loss / total_number  
+        
         net.eval()  # 设置网络为评估模式
         test_loss, test_accuracy = evaluate_model(test_iter, net, device, loss_fn)  # 计算测试集上的损失和准确率
 
