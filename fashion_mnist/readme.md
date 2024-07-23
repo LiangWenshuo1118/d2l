@@ -1,5 +1,6 @@
 
 ## fashion_nist_cnn_simple.py
+```
 epoch 1, average loss 0.861013
 epoch 2, average loss 0.493013
 epoch 3, average loss 0.429167
@@ -51,4 +52,5 @@ epoch 48, average loss 0.202632
 epoch 49, average loss 0.201667
 epoch 50, average loss 0.198938
 Accuracy on the test set: 89.98%
+```
 
