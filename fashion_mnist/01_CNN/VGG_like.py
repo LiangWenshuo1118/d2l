@@ -105,7 +105,7 @@ if __name__ == "__main__":
         print(f'Epoch {epoch + 1}: Train Loss {train_loss:.4f}, Test Loss {test_loss:.4f}, Test Accuracy {test_accuracy * 100:.2f}%')
 
     # 训练结束后，把数据写入txt文件
-    with open('log/VGG_like_droupout.txt', 'w') as f:
+    with open('log/VGG_like_dropout.txt', 'w') as f:
         f.write("{:<10}{:<15}{:<15}{:<15}\n".format("Epoch", "Train Loss", "Test Loss", "Test Accuracy"))
         for data in results:
             f.write("{:<10}{:<15.4f}{:<15.4f}{:<15.2f}\n".format(*data))
