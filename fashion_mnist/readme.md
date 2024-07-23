@@ -1,3 +1,59 @@
+## fashion_nist NN.py
+
+```
+Using mps device
+Epoch 1: Train Loss 0.7902, Test Loss 0.6491, Test Accuracy 77.92%
+Epoch 2: Train Loss 0.5728, Test Loss 0.5696, Test Accuracy 81.10%
+Epoch 3: Train Loss 0.5259, Test Loss 0.5488, Test Accuracy 81.09%
+Epoch 4: Train Loss 0.5014, Test Loss 0.5178, Test Accuracy 82.31%
+Epoch 5: Train Loss 0.4855, Test Loss 0.5264, Test Accuracy 81.89%
+Epoch 6: Train Loss 0.4747, Test Loss 0.5334, Test Accuracy 81.63%
+Epoch 7: Train Loss 0.4656, Test Loss 0.4950, Test Accuracy 82.93%
+Epoch 8: Train Loss 0.4581, Test Loss 0.4891, Test Accuracy 83.16%
+Epoch 9: Train Loss 0.4521, Test Loss 0.4903, Test Accuracy 83.08%
+Epoch 10: Train Loss 0.4478, Test Loss 0.4962, Test Accuracy 82.38%
+Epoch 11: Train Loss 0.4436, Test Loss 0.4772, Test Accuracy 83.38%
+Epoch 12: Train Loss 0.4385, Test Loss 0.5132, Test Accuracy 82.39%
+Epoch 13: Train Loss 0.4363, Test Loss 0.4738, Test Accuracy 83.30%
+Epoch 14: Train Loss 0.4339, Test Loss 0.4741, Test Accuracy 83.46%
+Epoch 15: Train Loss 0.4315, Test Loss 0.4846, Test Accuracy 83.04%
+Epoch 16: Train Loss 0.4280, Test Loss 0.4744, Test Accuracy 83.26%
+Epoch 17: Train Loss 0.4256, Test Loss 0.4753, Test Accuracy 83.01%
+Epoch 18: Train Loss 0.4245, Test Loss 0.4687, Test Accuracy 83.31%
+Epoch 19: Train Loss 0.4224, Test Loss 0.4592, Test Accuracy 83.75%
+Epoch 20: Train Loss 0.4205, Test Loss 0.4651, Test Accuracy 83.51%
+Epoch 21: Train Loss 0.4193, Test Loss 0.4677, Test Accuracy 83.31%
+Epoch 22: Train Loss 0.4169, Test Loss 0.4665, Test Accuracy 83.31%
+Epoch 23: Train Loss 0.4160, Test Loss 0.4532, Test Accuracy 84.13%
+Epoch 24: Train Loss 0.4146, Test Loss 0.4577, Test Accuracy 84.13%
+Epoch 25: Train Loss 0.4133, Test Loss 0.4604, Test Accuracy 83.95%
+Epoch 26: Train Loss 0.4129, Test Loss 0.4563, Test Accuracy 84.21%
+Epoch 27: Train Loss 0.4104, Test Loss 0.4572, Test Accuracy 83.95%
+Epoch 28: Train Loss 0.4101, Test Loss 0.4567, Test Accuracy 83.79%
+Epoch 29: Train Loss 0.4094, Test Loss 0.4530, Test Accuracy 83.98%
+Epoch 30: Train Loss 0.4070, Test Loss 0.4629, Test Accuracy 83.88%
+Epoch 31: Train Loss 0.4078, Test Loss 0.4503, Test Accuracy 84.02%
+Epoch 32: Train Loss 0.4060, Test Loss 0.4509, Test Accuracy 84.27%
+Epoch 33: Train Loss 0.4056, Test Loss 0.4483, Test Accuracy 84.16%
+Epoch 34: Train Loss 0.4042, Test Loss 0.4496, Test Accuracy 84.32%
+Epoch 35: Train Loss 0.4038, Test Loss 0.4456, Test Accuracy 84.32%
+Epoch 36: Train Loss 0.4030, Test Loss 0.4450, Test Accuracy 84.45%
+Epoch 37: Train Loss 0.4024, Test Loss 0.4520, Test Accuracy 84.20%
+Epoch 38: Train Loss 0.4020, Test Loss 0.4550, Test Accuracy 84.23%
+Epoch 39: Train Loss 0.4003, Test Loss 0.4579, Test Accuracy 83.78%
+Epoch 40: Train Loss 0.3999, Test Loss 0.4544, Test Accuracy 83.99%
+Epoch 41: Train Loss 0.3993, Test Loss 0.4566, Test Accuracy 84.06%
+Epoch 42: Train Loss 0.3979, Test Loss 0.4452, Test Accuracy 84.32%
+Epoch 43: Train Loss 0.3976, Test Loss 0.4645, Test Accuracy 83.90%
+Epoch 44: Train Loss 0.3976, Test Loss 0.4461, Test Accuracy 84.37%
+Epoch 45: Train Loss 0.3968, Test Loss 0.4415, Test Accuracy 84.50%
+Epoch 46: Train Loss 0.3967, Test Loss 0.4885, Test Accuracy 83.08%
+Epoch 47: Train Loss 0.3965, Test Loss 0.4746, Test Accuracy 82.82%
+Epoch 48: Train Loss 0.3958, Test Loss 0.4492, Test Accuracy 84.15%
+Epoch 49: Train Loss 0.3948, Test Loss 0.4463, Test Accuracy 84.20%
+Epoch 50: Train Loss 0.3953, Test Loss 0.4424, Test Accuracy 84.42%
+```
+
 
 ## fashion_nist CNN.py
 
