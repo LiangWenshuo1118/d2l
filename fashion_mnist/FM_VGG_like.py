@@ -48,7 +48,7 @@ def evaluate_model(data_iter, net, device, loss_fn):
             X, y = X.to(device), y.to(device)  # 将数据移动到指定设备（CPU或GPU）
             y_hat = net(X)  # 前向传播，得到预测结果
             l = loss_fn(y_hat, y)  # 计算损失
-            total_loss += l.item() * y.size(0)  # 累加损失值，乘以样本数量以获得总损失
+            total_loss += l.sum()  # 累加损失值，乘以样本数量以获得总损失
             y_pred = torch.argmax(y_hat, axis=1)  # 找到预测值中最大概率的类别
             correct += (y_pred == y).sum().item()  # 计算正确预测的数量
             total += y.size(0)  # 累加样本总数
@@ -89,10 +89,11 @@ if __name__ == "__main__":
             l.mean().backward()  # 反向传播计算梯度
             trainer.step()  # 更新参数
 
-            total_loss += l.item() * y.size(0)  # 累加损失值
+            total_loss += l.sum()  # 累加损失值
             total_number += y.size(0)  # 累加样本总数
 
         train_loss = total_loss / total_number  # 计算训练集上的平均损失
+        
         net.eval()  # 设置网络为评估模式
         test_loss, test_accuracy = evaluate_model(test_iter, net, device, loss_fn)  # 计算测试集上的损失和准确率
 
