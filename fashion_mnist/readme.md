@@ -58,7 +58,8 @@ Accuracy on the test set: 89.98%
 ## fashion_nist VGG_like.py
 
 - using mps
-- using dropout
+- using dropout (no)
+- using dropout (yes)
 
 ```
 Using mps device
