@@ -25,7 +25,7 @@ class NiN_like(nn.Module):
             NiN_block(in_channels=1, out_channels=32, kernel_size=3, strides=1, padding=1),
             NiN_block(in_channels=32,out_channels=10, kernel_size=3, strides=1, padding=1),           
             nn.AdaptiveAvgPool2d((1, 1)),   # 将四维的输出转成二维的输出，其形状为(批量大小,10)
-            nn.Flatten())
+            nn.Flatten()
         )
 
     def forward(self, x):
