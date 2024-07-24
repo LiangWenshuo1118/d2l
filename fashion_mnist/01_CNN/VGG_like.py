@@ -4,11 +4,11 @@ from torch import nn  # 从PyTorch中导入神经网络模块
 from torch.utils import data  # 从PyTorch中导入数据加载模块
 from torchvision import transforms  # 从Torchvision中导入数据预处理模块
 
-def VGG_block(in_channels, out_channels, kernel_size, strides, padding):
+def VGG_block(in_channels, out_channels, kernel_size,strides, padding):
     return nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size, padding),  # 输入通道为1（灰度图像），输出通道为16，卷积核大小为3x3，padding=1保持尺寸不变
+            nn.Conv2d(in_channels, out_channels, kernel_size, strides, padding),  # 输入通道为1（灰度图像），输出通道为16，卷积核大小为3x3，padding=1保持尺寸不变
             nn.ReLU(),  # 使用ReLU激活函数
-            nn.Conv2d(out_channels, out_channels, kernel_size, padding),  # 再次卷积，输入和输出通道都是16
+            nn.Conv2d(out_channels, out_channels, kernel_size, strides, padding),  # 再次卷积，输入和输出通道都是16
             nn.ReLU(),  # 使用ReLU激活函数
             nn.MaxPool2d(2, 2),  # 最大池化层，池化窗口大小为2x2，步幅为2，减少特征图尺寸
             nn.Dropout(0.25),  # Dropout层，随机丢弃25%的神经元以防止过拟合
@@ -20,8 +20,8 @@ class VGG_like(nn.Module):
         super(VGG_like, self).__init__()  # 调用父类的构造函数
         # 特征提取部分，包含多层卷积和池化层
         self.features = nn.Sequential(
-            VGG_block(in_channels=1, out_channels=16, kernel_size=3, padding=1),
-            VGG_block(in_channels=16,out_channels=32, kernel_size=3, padding=1),
+            VGG_block(in_channels=1, out_channels=16, kernel_size=3, strides=1, padding=1),
+            VGG_block(in_channels=16,out_channels=32, kernel_size=3, strides=1, padding=1),
         )
         # 分类器部分，包含全连接层
         self.classifier = nn.Sequential(
@@ -33,6 +33,7 @@ class VGG_like(nn.Module):
 
     def forward(self, x):
         x = self.features(x)  # 前向传播，先通过特征提取部分
+        #print(x.shape)  # 在x = x.view(x.size(0), -1)之前加入此行代码
         x = x.view(x.size(0), -1)  # 将多维张量展平成二维张量 (batch_size, flatten_features)
         x = self.classifier(x)  # 通过分类器部分
         return x  # 返回最终输出
