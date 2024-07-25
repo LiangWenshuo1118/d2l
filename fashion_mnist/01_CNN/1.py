@@ -19,7 +19,7 @@ class Residual(nn.Module):
         Y = self.bn2(self.conv2(Y))
         if self.conv3:
              X = self.conv3(X)
-        Y += X
+             Y += X
         return F.relu(Y)
 
 def resnet_block(input_channels, num_channels, num_residuals,first_block=False):
@@ -37,9 +37,12 @@ b1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3), # 1*224
     nn.MaxPool2d(kernel_size=3, stride=2, padding=1) # 64 * 56 * 56
     )
 
-b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
+b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True)) # 64 * 56 * 56 > 64 *28 *28 > 64 *28 *28 ; 64 * 56 * 56 > 64 *28 *28
+
 b3 = nn.Sequential(*resnet_block(64, 128, 2))
+
 b4 = nn.Sequential(*resnet_block(128, 256, 2))
+
 b5 = nn.Sequential(*resnet_block(256, 512, 2))
 
 net = nn.Sequential(b1, b2, b3, b4, b5,
