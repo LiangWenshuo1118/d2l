@@ -45,5 +45,5 @@ b3 = nn.Sequential(*resnet_block(16, 32, 2))
 
 net = nn.Sequential(b1, b2,
     nn.AdaptiveAvgPool2d((1,1)),
-    nn.Flatten(), nn.Linear(512, 10)
+    nn.Flatten(), nn.Linear(32, 10)
     )
