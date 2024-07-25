@@ -32,10 +32,11 @@ def resnet_block(input_channels, num_channels, num_residuals,first_block=False):
     return blk
 
 
-b1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3),
+b1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3), # 1*224*224 > 64 * 112 * 112
     nn.BatchNorm2d(64), nn.ReLU(),
-    nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+    nn.MaxPool2d(kernel_size=3, stride=2, padding=1) # 64 * 56 * 56
     )
+
 b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True))
 b3 = nn.Sequential(*resnet_block(64, 128, 2))
 b4 = nn.Sequential(*resnet_block(128, 256, 2))
