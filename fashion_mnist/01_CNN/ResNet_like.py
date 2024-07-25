@@ -1,40 +1,40 @@
-import torch  # 导入PyTorch库
-import torchvision  # 导入Torchvision库，用于处理图像数据集
-from torch import nn  # 从PyTorch中导入神经网络模块
-from torch.utils import data  # 从PyTorch中导入数据加载模块
-from torchvision import transforms  # 从Torchvision中导入数据预处理模块
+import torch
+import torchvision
+from torch import nn
+from torch.utils import data
+from torchvision import transforms
 from torch.nn import functional as F
 
-class Residual(nn.Module):
-    def __init__(self, input_channels, num_channels, use_1x1conv=False, strides=1):
+class ResidualBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, stride=1, use_1x1conv=False):
         super().__init__()
-        self.conv1 = nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1, stride=strides)
-        self.conv2 = nn.Conv2d(num_channels, num_channels, kernel_size=3, padding=1, stride=1)
-        self.dropout = nn.Dropout(0.5)
+        self.main_path = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm2d(out_channels)
+        )
         if use_1x1conv:
-            self.conv3 = nn.Conv2d(input_channels, num_channels, kernel_size=1, padding=0, stride=strides) # padding默认值是0
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride),
+                nn.BatchNorm2d(out_channels)
+            )
         else:
-            self.conv3 = None
-        self.bn1 = nn.BatchNorm2d(num_channels)
-        self.bn2 = nn.BatchNorm2d(num_channels)
+            self.shortcut = nn.Identity()
 
-    def forward(self, X):
-        Y = F.relu(self.bn1(self.conv1(X)))
-        Y = self.dropout(Y)  # 在第一次卷积和第二次卷积之间应用dropout
-        Y = self.bn2(self.conv2(Y))
-        if self.conv3:
-             X = self.conv3(X)
-        Y += X
-        return F.relu(Y)
+    def forward(self, x):
+        return F.relu(self.main_path(x) + self.shortcut(x))
 
-def resnet_block(input_channels, num_channels, num_residuals, first_block=False):
-    blk = []
-    for i in range(num_residuals):
+def make_layers(in_channels, out_channels, num_blocks, first_block=False):
+    layers = []
+    for i in range(num_blocks):
         if i == 0 and not first_block:
-            blk.append(Residual(input_channels, num_channels, use_1x1conv=True, strides=2))
+            layers.append(ResidualBlock(in_channels, out_channels, stride=2, use_1x1conv=True))
         else:
-            blk.append(Residual(num_channels, num_channels))
-    return blk
+            layers.append(ResidualBlock(out_channels, out_channels))
+    return nn.Sequential(*layers)
 
 # 评估模型性能的函数，计算平均损失和准确率
 def evaluate_model(data_iter, net, device, loss_fn):
@@ -69,23 +69,24 @@ if __name__ == "__main__":
     train_iter = torch.utils.data.DataLoader(mnist_train, batch_size, shuffle=True)
     test_iter = torch.utils.data.DataLoader(mnist_test, batch_size, shuffle=False)
 
-    # 输入1*28*28 > 输出16 * 28 * 28
-    b1 = nn.Sequential(nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1),
-        nn.BatchNorm2d(16), nn.ReLU(),
-        nn.MaxPool2d(kernel_size=2, stride=2), # 输入16 * 28 * 28 > 输出16 * 14 * 14
+    # 使用简化的模型搭建方式
+    b1 = nn.Sequential(
+        nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1),
+        nn.BatchNorm2d(16),
+        nn.ReLU(),
+        nn.MaxPool2d(kernel_size=2, stride=2),  # 输出: 16 x 14 x 14
         nn.Dropout(0.25)
-        )
+    )
 
-    # 输入16 * 14 * 14 > 输出 16 * 14 * 14
-    b2 = nn.Sequential(*resnet_block(16, 16, 2, first_block=True))
-    # 输入16 * 14 * 14 > 输出 32 * 7 * 7
-    b3 = nn.Sequential(*resnet_block(16, 32, 2))
+    b2 = make_layers(16, 16, 2, first_block=True)  # 输出: 16 x 14 x 14
+    b3 = make_layers(16, 32, 2)  # 输出: 32 x 7 x 7
 
-   net = nn.Sequential(b1, b2, b3,
-        nn.AdaptiveAvgPool2d((1,1)),
+    net = nn.Sequential(
+        b1, b2, b3,
+        nn.AdaptiveAvgPool2d((1, 1)),
         nn.Flatten(),
         nn.Linear(32, 10)
-        ).to(device)
+    ).to(device)
 
     num_epochs = 50
     loss_fn = nn.CrossEntropyLoss(reduction='none')
