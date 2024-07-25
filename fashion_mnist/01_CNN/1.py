@@ -30,6 +30,8 @@ def resnet_block(input_channels, num_channels, num_residuals,first_block=False):
         else:
             blk.append(Residual(num_channels, num_channels))
     return blk
+
+
 b1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3),
     nn.BatchNorm2d(64), nn.ReLU(),
     nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
