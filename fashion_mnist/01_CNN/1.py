@@ -10,6 +10,7 @@ class Residual(nn.Module):
         super().__init__()
         self.conv1 = nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1, stride=strides)
         self.conv2 = nn.Conv2d(num_channels, num_channels, kernel_size=3, padding=1, stride=1)
+        self.dropout = nn.Dropout(0.5)
         if use_1x1conv:
             self.conv3 = nn.Conv2d(input_channels, num_channels, kernel_size=1, padding=0, stride=strides) # padding默认值是0
         else:
@@ -19,10 +20,11 @@ class Residual(nn.Module):
 
     def forward(self, X):
         Y = F.relu(self.bn1(self.conv1(X)))
+        Y = self.dropout(Y)  # 在第一次卷积和第二次卷积之间应用dropout
         Y = self.bn2(self.conv2(Y))
         if self.conv3:
              X = self.conv3(X)
-             Y += X
+        Y += X
         return F.relu(Y)
 
 def resnet_block(input_channels, num_channels, num_residuals, first_block=False):
@@ -68,19 +70,20 @@ if __name__ == "__main__":
     test_iter = torch.utils.data.DataLoader(mnist_test, batch_size, shuffle=False)
 
     # 输入1*28*28 > 输出16 * 28 * 28
-    b1 = nn.Sequential(nn.Conv2d(1, 16, kernel_size=3, stride=3, padding=3), 
-    nn.BatchNorm2d(16), 
-    nn.ReLU(),
-    nn.MaxPool2d(kernel_size=2, stride=2), # 输入16 * 28 * 28 > 输出16 * 14 * 14
-    nn.Dropout(0.25)
-    )
+    b1 = nn.Sequential(nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1),
+        nn.BatchNorm2d(16), nn.ReLU(),
+        nn.MaxPool2d(kernel_size=2, stride=2), # 输入16 * 28 * 28 > 输出16 * 14 * 14
+        nn.Dropout(0.25)
+        )
+
     # 输入16 * 14 * 14 > 输出 16 * 14 * 14
     b2 = nn.Sequential(*resnet_block(16, 16, 2, first_block=True))
     # 输入16 * 14 * 14 > 输出 32 * 7 * 7
     b3 = nn.Sequential(*resnet_block(16, 32, 2))
-    net = nn.Sequential(b1, b2,
+
+   net = nn.Sequential(b1, b2, b3,
         nn.AdaptiveAvgPool2d((1,1)),
-        nn.Flatten(), 
+        nn.Flatten(),
         nn.Linear(32, 10)
         ).to(device)
 
