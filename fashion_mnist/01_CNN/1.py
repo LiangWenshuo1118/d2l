@@ -37,7 +37,7 @@ b1 = nn.Sequential(nn.Conv2d(1, 16, kernel_size=3, stride=3, padding=3), # 输�
     nn.MaxPool2d(kernel_size=2, stride=2) # 输入16 * 28 * 28 > 输出16 * 14 * 14
     )
 
-b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True)) # 64 * 56 * 56 > 64 *28 *28 > 64 *28 *28 ; 64 * 56 * 56 > 64 *28 *28
+b2 = nn.Sequential(*resnet_block(16, 16, 2, first_block=True)) # 64 * 56 * 56 > 64 *28 *28 > 64 *28 *28 ; 64 * 56 * 56 > 64 *28 *28
 
 b3 = nn.Sequential(*resnet_block(64, 128, 2))
 
