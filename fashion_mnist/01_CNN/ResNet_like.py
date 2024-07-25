@@ -12,7 +12,6 @@ class ResidualBlock(nn.Module):
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(),
-            nn.Dropout(0.5),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(out_channels)
         )
@@ -78,15 +77,17 @@ if __name__ == "__main__":
         nn.Dropout(0.25)
     )
 
-    b2 = make_layers(16, 16, 2, first_block=True)  # 输出: 16 x 14 x 14
-    b3 = make_layers(16, 32, 2)  # 输出: 32 x 7 x 7
-
-    net = nn.Sequential(
-        b1, b2, b3,
-        nn.AdaptiveAvgPool2d((1, 1)),
+    b2 = make_layers(16, 16, 1, first_block=True)  # 输出: 16 x 14 x 14
+    b3 = make_layers(16, 32, 1)  # 输出: 32 x 7 x 7
+    b4 = nn.Sequential(
         nn.Flatten(),
-        nn.Linear(32, 10)
-    ).to(device)
+        nn.Linear(32*7*7,100),
+        nn.ReLU(),
+        nn.Dropout(0.5),
+        nn.Linear(100, 10)
+    )
+
+    net = nn.Sequential(b1, b2, b3,b4).to(device)
 
     num_epochs = 50
     loss_fn = nn.CrossEntropyLoss(reduction='none')
