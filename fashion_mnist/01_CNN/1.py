@@ -41,11 +41,7 @@ b2 = nn.Sequential(*resnet_block(64, 64, 2, first_block=True)) # 64 * 56 * 56 > 
 
 b3 = nn.Sequential(*resnet_block(64, 128, 2))
 
-b4 = nn.Sequential(*resnet_block(128, 256, 2))
-
-b5 = nn.Sequential(*resnet_block(256, 512, 2))
-
-net = nn.Sequential(b1, b2, b3, b4, b5,
+net = nn.Sequential(b1, b2,
     nn.AdaptiveAvgPool2d((1,1)),
     nn.Flatten(), nn.Linear(512, 10)
     )
