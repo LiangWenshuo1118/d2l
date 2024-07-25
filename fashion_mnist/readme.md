@@ -1,6 +1,6 @@
 ## Results
 
-![results](./results/results1.png)
+![results](./results/results.png)
 
 ### VGG-like
 ![results](./results/results2.png)
