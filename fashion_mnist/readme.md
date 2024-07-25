@@ -1,6 +1,6 @@
 ## Results
 
-### NN & CNN
+### NN & CNN models
 
 ![results](./results/results1.png)
 
