@@ -109,17 +109,19 @@ def main():
     descriptors_H1 = [desc[1] for desc in descriptors]
     descriptors_H2 = [desc[2] for desc in descriptors]
 
-    # 受力数据对应处理
-    forces_O = [force[0] for force in forces]
-    forces_H1 = [force[1] for force in forces]
-    forces_H2 = [force[2] for force in forces]
-
     # 转换为张量
     descriptors_O = torch.tensor(descriptors_O, dtype=torch.float32)
     descriptors_H1 = torch.tensor(descriptors_H1, dtype=torch.float32)
     descriptors_H2 = torch.tensor(descriptors_H2, dtype=torch.float32)
-    energies = torch.tensor(energies[:, None], dtype=torch.float32)
 
+    # 能量
+    energies = torch.tensor(energies[:, None], dtype=torch.float32)
+    
+    # 受力数据对应处理
+    forces_O = [force[0] for force in forces]
+    forces_H1 = [force[1] for force in forces]
+    forces_H2 = [force[2] for force in forces]
+    
     forces_O = torch.tensor(forces_O, dtype=torch.float32)
     forces_H1 = torch.tensor(forces_H1, dtype=torch.float32)
     forces_H2 = torch.tensor(forces_H2, dtype=torch.float32)
@@ -144,13 +146,16 @@ def main():
     test_descriptors_O = descriptors_O[test_indices]
     test_descriptors_H1 = descriptors_H1[test_indices]
     test_descriptors_H2 = descriptors_H2[test_indices]
+    
     test_energies = energies[test_indices]
     test_forces_O = forces_O[test_indices]
     test_forces_H1 = forces_H1[test_indices]
     test_forces_H2 = forces_H2[test_indices]
 
     train_forces = torch.cat((train_forces_O, train_forces_H1, train_forces_H2), dim=1)
+    print("train_forces",train_forces.shape)
     test_forces = torch.cat((test_forces_O, test_forces_H1, test_forces_H2), dim=1)
+    print("test_forces",test_forces.shape)
 
     # 网络和优化器
     input_size = descriptors_O.shape[1]
