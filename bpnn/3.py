@@ -144,17 +144,16 @@ def main():
     train_descriptors_O = descriptors_O[train_indices]
     train_descriptors_H1 = descriptors_H1[train_indices]
     train_descriptors_H2 = descriptors_H2[train_indices]
-
-    train_energies = energies[train_indices]
-    train_forces_O = forces_O[train_indices]
-    train_forces_H1 = forces_H1[train_indices]
-    train_forces_H2 = forces_H2[train_indices]
-
     test_descriptors_O = descriptors_O[test_indices]
     test_descriptors_H1 = descriptors_H1[test_indices]
     test_descriptors_H2 = descriptors_H2[test_indices]
 
+    train_energies = energies[train_indices]
     test_energies = energies[test_indices]
+    
+    train_forces_O = forces_O[train_indices]
+    train_forces_H1 = forces_H1[train_indices]
+    train_forces_H2 = forces_H2[train_indices]
     test_forces_O = forces_O[test_indices]
     test_forces_H1 = forces_H1[test_indices]
     test_forces_H2 = forces_H2[test_indices]
