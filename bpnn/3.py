@@ -5,12 +5,15 @@ import numpy as np
 import dpdata
 import matplotlib.pyplot as plt
 
+
 # 高斯型描述符转换函数
 def gaussian_transform(r, eta, Rs):
     return np.exp(-eta * (r - Rs) ** 2)
 
+
 def gaussian_transform_angle(theta, zeta, Theta_s):
     return np.exp(-zeta * (np.radians(theta) - np.radians(Theta_s)) ** 2)
+
 
 # 计算所有描述符
 def compute_descriptors(coords):
@@ -58,9 +61,10 @@ def compute_descriptors(coords):
 
     return descriptors_O, descriptors_H1, descriptors_H2
 
+
 # 包含三个子网络
 class MolecularNN(nn.Module):
-    def __init__(self, input_size, hidden_size=10):
+    def __init__(self, input_size, hidden_size=100):
         super(MolecularNN, self).__init__()
         self.subnet_O = nn.Sequential(
             nn.Linear(input_size, hidden_size),
@@ -84,15 +88,18 @@ class MolecularNN(nn.Module):
         output_H1 = self.subnet_H1(x_H1)
         output_H2 = self.subnet_H2(x_H2)
         total_energy = output_O[:, 0:1] + output_H1[:, 0:1] + output_H2[:, 0:1]
-        total_forces = output_O[:, 1:] + output_H1[:, 1:] + output_H2[:, 1:]
+        total_forces = torch.cat((output_O[:, 1:], output_H1[:, 1:], output_H2[:, 1:]), dim=1)
+        #print("total_forces",total_forces.shape)
         return total_energy, total_forces
+
 
 def compute_loss(outputs, targets):
     energies, forces = outputs
     target_energies, target_forces = targets
     energy_loss = nn.MSELoss()(energies, target_energies)
     force_loss = nn.MSELoss()(forces, target_forces)
-    return energy_loss + force_loss / 9
+    total_loss = energy_loss + force_loss * 10
+    return total_loss, energy_loss, force_loss
 
 def main():
     # 使用 dpdata 读取 OUTCAR 文件
@@ -116,12 +123,12 @@ def main():
 
     # 能量
     energies = torch.tensor(energies[:, None], dtype=torch.float32)
-    
+
     # 受力数据对应处理
     forces_O = [force[0] for force in forces]
     forces_H1 = [force[1] for force in forces]
     forces_H2 = [force[2] for force in forces]
-    
+
     forces_O = torch.tensor(forces_O, dtype=torch.float32)
     forces_H1 = torch.tensor(forces_H1, dtype=torch.float32)
     forces_H2 = torch.tensor(forces_H2, dtype=torch.float32)
@@ -146,16 +153,16 @@ def main():
     test_descriptors_O = descriptors_O[test_indices]
     test_descriptors_H1 = descriptors_H1[test_indices]
     test_descriptors_H2 = descriptors_H2[test_indices]
-    
+
     test_energies = energies[test_indices]
     test_forces_O = forces_O[test_indices]
     test_forces_H1 = forces_H1[test_indices]
     test_forces_H2 = forces_H2[test_indices]
 
     train_forces = torch.cat((train_forces_O, train_forces_H1, train_forces_H2), dim=1)
-    print("train_forces",train_forces.shape)
+    print("train_forces", train_forces.shape)
     test_forces = torch.cat((test_forces_O, test_forces_H1, test_forces_H2), dim=1)
-    print("test_forces",test_forces.shape)
+    print("test_forces", test_forces.shape)
 
     # 网络和优化器
     input_size = descriptors_O.shape[1]
@@ -163,36 +170,50 @@ def main():
     optimizer = optim.Adam(net.parameters(), lr=0.001)
 
     # 训练循环
-    for epoch in range(400000):
+    for epoch in range(5000000):
         optimizer.zero_grad()
         energies, forces = net((train_descriptors_O, train_descriptors_H1, train_descriptors_H2))
-        loss = compute_loss((energies, forces), (train_energies, train_forces))
-        loss.backward()
+        total_loss, energy_loss, force_loss = compute_loss((energies, forces), (train_energies, train_forces))
+        total_loss.backward()
         optimizer.step()
-        if epoch % 40000 == 0:
-            print(f'Epoch {epoch}, Loss: {loss.item()}')
+        if epoch % 100000 == 0:
+            print(f'Epoch {epoch}, Total Loss: {total_loss.item()}, Energy Loss: {energy_loss.item()}, Force Loss: {force_loss.item()}')
 
     # 测试模型
     net.eval()
     with torch.no_grad():
         energies, forces = net((test_descriptors_O, test_descriptors_H1, test_descriptors_H2))
-        test_loss = compute_loss((energies, forces), (test_energies, test_forces))
-        print(f'Test Loss: {test_loss.item()}')
+        test_total_loss, test_energy_loss, test_force_loss = compute_loss((energies, forces), (test_energies, test_forces))
+        print(f'Test Energy Loss: {test_energy_loss.item()}, Test Force Loss: {test_force_loss.item()}')
 
         # 将预测和实际值转换为 NumPy 数组用于绘图
-        predicted = energies.numpy().flatten()
-        actual = test_energies.numpy().flatten()
+        predicted_energies = energies.numpy().flatten()
+        actual_energies = test_energies.numpy().flatten()
+        predicted_forces_x = forces[:, [0, 3, 6]].numpy().flatten()  # 选择x方向力的列
+        actual_forces_x = test_forces[:, [0, 3, 6]].numpy().flatten()  # 同样选择x方向力的列
 
-        # 绘制散点图
+        # 绘制能量散点图
         plt.figure(figsize=(8, 8))
-        plt.scatter(actual, predicted, alpha=0.5, label='Predicted vs. Actual')
-        plt.plot([actual.min(), actual.max()], [actual.min(), actual.max()], 'r--', label='Ideal')
+        plt.scatter(actual_energies, predicted_energies, alpha=0.5, label='Predicted vs. Actual Energies')
+        plt.plot([actual_energies.min(), actual_energies.max()], [actual_energies.min(), actual_energies.max()], 'r--', label='Ideal')
         plt.xlabel('Actual Energy')
         plt.ylabel('Predicted Energy')
-        plt.title('Predicted vs Actual Energies Correlation')
+        plt.title('Predicted vs Actual Energies')
         plt.legend()
         plt.grid(True)
         plt.show()
+
+        # 绘制力的x方向散点图
+        plt.figure(figsize=(8, 8))
+        plt.scatter(actual_forces_x, predicted_forces_x, alpha=0.5, color='green', label='Predicted vs. Actual Forces (X)')
+        plt.plot([actual_forces_x.min(), actual_forces_x.max()], [actual_forces_x.min(), actual_forces_x.max()], 'b--', label='Ideal')
+        plt.xlabel('Actual Forces (X)')
+        plt.ylabel('Predicted Forces (X)')
+        plt.title('Predicted vs Actual Forces (X Direction)')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
 
 if __name__ == "__main__":
     main()
