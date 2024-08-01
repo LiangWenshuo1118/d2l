@@ -70,10 +70,8 @@ def generate(model, char_to_idx, idx_to_char, start_str='tw', predict_len=100, t
 text = "twinkle, twinkle, little star, how I wonder what you are"
 chars = sorted(set(text))
 
-# 初始化字典
-char_to_idx = {}
-idx_to_char = {}
 # 枚举字符，为每个字符分配一个唯一的索引
+char_to_idx, idx_to_char = {}, {}
 for idx, ch in enumerate(chars):
     char_to_idx[ch] = idx  # 将字符映射到它的索引
     idx_to_char[idx] = ch  # 将索引映射回字符
