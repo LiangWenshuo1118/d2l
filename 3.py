@@ -52,22 +52,6 @@ def build_adjacency_matrix(elements):
                 adj_matrix[j][i] = 1  # 因为是无向图
     return adj_matrix
 
-def build_graph_data(system_data):
-    """从系统数据构建用于图神经网络的数据对象"""
-    for key, system in system_data.items():
-        elements = get_elements(system)
-        percentages = get_element_molar_percentages(system)
-        features = build_feature_matrix(elements, percentages)
-        adjacency = build_adjacency_matrix(elements)
-
-        # 全局特征和标签
-        temperature = torch.tensor([temp[0] for temp in system['temperature_density']], dtype=torch.float)
-        labels = torch.tensor([[temp[1], visc[1]] for temp, visc in zip(system['temperature_density'], system['temperature_viscosity'])], dtype=torch.float)
-
-        # 构建PyTorch Geometric数据对象
-        data_object = Data(x=features, edge_index=adjacency.nonzero(as_tuple=True), y=labels, global_attr=temperature)
-        print(f"{key} Graph Data: {data_object}")
-
 
 
 # 提供的熔盐体系数据
@@ -106,10 +90,18 @@ data = {
   }
 }
 
-# 调用函数
-for key in data:
-    element_atomic_numbers = get_elements(data[key])
-    element_molar_percentages = get_element_molar_percentages(data[key])
+"""从系统数据构建用于图神经网络的数据对象"""
+for key, system in system_data.items():
+    elements = get_elements(system)
+    percentages = get_element_molar_percentages(system)
+    features = build_feature_matrix(elements, percentages)
+    adjacency = build_adjacency_matrix(elements)
 
-build_graph_data(data)
+    # 全局特征和标签
+    temperature = torch.tensor([temp[0] for temp in system['temperature_density']], dtype=torch.float)
+    labels = torch.tensor([[temp[1], visc[1]] for temp, visc in zip(system['temperature_density'], system['temperature_viscosity'])], dtype=torch.float)
+
+    # 构建PyTorch Geometric数据对象
+    data_object = Data(x=features, edge_index=adjacency.nonzero(as_tuple=True), y=labels, global_attr=temperature)
+    print(f"{key} Graph Data: {data_object}")
 
