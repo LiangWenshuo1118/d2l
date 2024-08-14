@@ -62,9 +62,9 @@ data = {
     ],
     "temperature_viscosity": [
       [400, 0.30],
-      [420, 0.28],
-      [430, 0.26],
-      [440, 0.25]
+      [430, 0.28],
+      [450, 0.26],
+      [480, 0.25]
     ]
   },
   "system2": {
@@ -78,9 +78,9 @@ data = {
     ],
     "temperature_viscosity": [
       [400, 0.31],
-      [420, 0.29],
-      [430, 0.27],
-      [440, 0.26]
+      [430, 0.29],
+      [450, 0.27],
+      [480, 0.26]
     ]
   }
 }
@@ -98,4 +98,10 @@ for key, system in data.items():
 
     # 构建PyTorch Geometric数据对象
     data_object = Data(x=features, edge_index=adjacency.nonzero(as_tuple=True), y=labels, global_attr=temperature)
+
     print(f"{key} Graph Data: {data_object}")
+    print(f"{key} Features Matrix:\n{features}")
+    print(f"{key} adjacency:\n{adjacency}")
+    print(f"{key} Global Attributes (Temperature):\n{temperature}")
+    print(f"{key} Labels:\n{labels}")
+
