@@ -24,20 +24,16 @@ def get_element_molar_percentages(system):
     total_element_moles = sum(element_counts.values())
     return [(element_counts[element] / total_element_moles) * 100 for element in sorted(element_counts)]
 
-def fetch_element_features(elements):
-    """根据原子序数获取每个元素的特征"""
-    features = []
-    for atomic_number in elements:
-        el = element(atomic_number)
-        features.append([atomic_number, el.period, el.en_pauling])
-    return features
-
-def build_feature_matrix(elements, percentages):
+def build_feature_matrix(element_atomic_numbers, element_molar_percentages):
     """构建特征矩阵，包含原子属性和摩尔百分比"""
-    element_features = fetch_element_features(elements)
+    element_features = []
+    for atomic_number in element_atomic_numbers:
+        el = element(atomic_number)
+        element_features.append([atomic_number, el.period, el.en_pauling])
+
     # 将摩尔百分比添加到特征列表中
     for i, features in enumerate(element_features):
-        features.append(percentages[i])
+        features.append(element_molar_percentages[i])
     return torch.tensor(element_features, dtype=torch.float)
 
 def build_adjacency_matrix(elements):
@@ -51,7 +47,6 @@ def build_adjacency_matrix(elements):
                 adj_matrix[i][j] = 1
                 adj_matrix[j][i] = 1  # 因为是无向图
     return adj_matrix
-
 
 
 # 提供的熔盐体系数据
@@ -90,7 +85,7 @@ data = {
   }
 }
 
-"""从系统数据构建用于图神经网络的数据对象"""
+# 从系统数据构建用于图神经网络的数据对象
 for key, system in data.items():
     element_atomic_numbers = get_element_atomic_numbers(system)
     element_molar_percentages = get_element_molar_percentages(system)
