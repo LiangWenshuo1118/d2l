@@ -5,7 +5,7 @@ from torch_geometric.data import Data
 from mendeleev import element
 
 
-def get_elements(system):
+def get_element_atomic_numbers(system):
     """ 返回体系中所有不同的元素的原子序数 """
     element_atomic_numbers = set()
     for compound in system['system']:
@@ -91,11 +91,11 @@ data = {
 }
 
 """从系统数据构建用于图神经网络的数据对象"""
-for key, system in system_data.items():
-    elements = get_elements(system)
-    percentages = get_element_molar_percentages(system)
-    features = build_feature_matrix(elements, percentages)
-    adjacency = build_adjacency_matrix(elements)
+for key, system in data.items():
+    element_atomic_numbers = get_element_atomic_numbers(system)
+    element_molar_percentages = get_element_molar_percentages(system)
+    features = build_feature_matrix(element_atomic_numbers, element_molar_percentages)
+    adjacency = build_adjacency_matrix(element_atomic_numbers)
 
     # 全局特征和标签
     temperature = torch.tensor([temp[0] for temp in system['temperature_density']], dtype=torch.float)
@@ -104,4 +104,3 @@ for key, system in system_data.items():
     # 构建PyTorch Geometric数据对象
     data_object = Data(x=features, edge_index=adjacency.nonzero(as_tuple=True), y=labels, global_attr=temperature)
     print(f"{key} Graph Data: {data_object}")
-
